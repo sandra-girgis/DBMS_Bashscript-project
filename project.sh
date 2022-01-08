@@ -1,10 +1,13 @@
 #!/bin/bash
-mkdir db
-cd db
+mkdir DB 2>> ./.wornning.log
+cd DB
+echo "Welcome To our database :)"
+let flag2=0
 select choice in "create-db" "list-db" "connect-db" "delete-db" "exit"
 do
 case $choice in
     create-db )
+        echo enter your database name
         read namedb
         let flag=0
         for i in `ls`
@@ -45,6 +48,7 @@ case $choice in
             do
                 if [ $flag -eq 1 ]
                 then
+                    flag2=1
                     exit
                 fi
                 if [ $data = $i ]
@@ -91,3 +95,40 @@ case $choice in
     *) exit ;;
 esac
 done
+if [ flag2 -eq 1 ]
+then
+    select choice in "create-table""list-table""drop-table""select-from-table""insert-in-table""delete-from-table"
+    do
+    case $choice in
+        create-table )
+            echo ENTER your table name 
+            read tablename
+            let flag=0
+            for i in `ls`
+            do
+                if [ $flag -eq 1 ]
+                then
+                    break
+                fi
+                if [ $tablename = $i ]
+                then
+                    echo $tablename is already exist
+                    flag=1
+                fi
+            done
+            if [ $flag -eq 0 ]
+            then
+                touch $tablename
+                echo $tablename is created
+            fi
+            ;;
+        list-table ) ;;
+        drop-table ) ;;
+        select-from-table ) ;;
+        insert-in-table ) ;;
+        delete-from-table ) ;;
+        exit ) exit ;;
+        *) exit ;;
+    esac
+    done
+fi
