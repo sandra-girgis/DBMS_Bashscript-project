@@ -49,7 +49,8 @@ case $choice in
                 if [ $flag -eq 1 ]
                 then
                     flag2=1
-                    exit
+                    break
+                    # exit
                 fi
                 if [ $data = $i ]
                 then
@@ -61,6 +62,11 @@ case $choice in
                 if [ $flag -eq 0 ]
                 then 
                     echo $data not exist so choise 1 to create your data base
+                fi
+                if [ $flag2 -eq 1 ]
+                then
+                    break
+                    # exit
                 fi
         fi
         ;;
@@ -95,9 +101,9 @@ case $choice in
     *) exit ;;
 esac
 done
-if [ flag2 -eq 1 ]
+if [ $flag2 -eq 1 ]
 then
-    select choice in "create-table""list-table""drop-table""select-from-table""insert-in-table""delete-from-table"
+    select choice in "create-table" "list-table" "drop-table" "select-from-table" "insert-in-table" "delete-from-table"
     do
     case $choice in
         create-table )
@@ -122,13 +128,13 @@ then
                 echo $tablename is created
             fi
             ;;
-        list-table ) ;;
-        drop-table ) ;;
-        select-from-table ) ;;
-        insert-in-table ) ;;
-        delete-from-table ) ;;
-        exit ) exit ;;
-        *) exit ;;
+        # list-table ) ;;
+        # drop-table ) ;;
+        # select-from-table ) ;;
+        # insert-in-table ) ;;
+        # delete-from-table ) ;;
+        # exit ) exit ;;
+        # *) exit ;;
     esac
     done
 fi
