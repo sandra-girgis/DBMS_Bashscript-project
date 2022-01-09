@@ -103,7 +103,7 @@ esac
 done
 if [ $flag2 -eq 1 ]
 then
-    select choice in "create-table" "list-table" "drop-table" "select-from-table" "insert-in-table" "delete-from-table"
+    select choice in "create-table" "list-table" "drop-table" "insert-in-table" "select-from-table" "delete-from-table"
     do
     case $choice in
         create-table )
@@ -130,17 +130,11 @@ then
                 sep="|"
                 rSep="\n"
                 pKey=""
-                metaData="Field"$sep"Type"$sep
+                metaData="Field"$sep"Type"$sep"key" 
                 while [ $counter -le $colsNum ]
-                do
-                    if [ $counter -eq 1 ]
-                    then
-                        echo -e "Enter your primary key Name: \c"
-                        read colName
-                    else
-                        echo -e "Name of Column No.$counter: \c"
-                        read colName
-                    fi
+                do            
+                    echo -e "Name of Column No.$counter: \c"
+                    read colName
                     echo -e "Type of Column $colName: "
                     select var in "int" "varchar"
                     do
@@ -153,7 +147,23 @@ then
                             echo "Wrong Choice" ;;
                     esac
                     done
-                    metaData+=$rSep$colName$sep$colType$sep""
+                    if [[ $pKey == "" ]]; then
+                        echo -e "Make PrimaryKey ? "
+                        select var in "yes" "no"
+                        do
+                            case $var in
+                            yes ) pKey="PK";
+                            metaData+=$rSep$colName$sep$colType$sep$pKey;
+                            break;;
+                            no )
+                            metaData+=$rSep$colName$sep$colType$sep""
+                            break;;
+                            * ) echo "Wrong Choice" ;;
+                            esac
+                        done
+                        else
+                        metaData+=$rSep$colName$sep$colType$sep""
+                        fi                    
                     if [[ $counter == $colsNum ]]; then
                     temp=$temp$colName
                     else
@@ -209,8 +219,65 @@ then
                 fi
             fi
         ;;
-        select-from-table ) ;;
-        insert-in-table ) ;;
+        insert-in-table ) 
+            echo -e "Table Name: \c"
+            read tableName
+            if ! [[ -f $tableName ]]; then
+                echo "Table $tableName isn't existed ,choose another Table"
+            fi
+            colsNum=`awk 'END{print NR}' .$tableName`
+            sep="|"
+            rSep="\n"
+            for (( i = 2; i <= $colsNum; i++ )); do
+                colName=$(awk 'BEGIN{FS="|"}{ if(NR=='$i') print $1}' .$tableName)
+                colType=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $2}' .$tableName)
+                colKey=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $3}' .$tableName)
+                echo -e "$colName ($colType) = \c"
+                read data
+                # Validate datatype
+                if [[ $colType == "int" ]]; then
+                while ! [[ $data =~ ^[0-9]*$ ]]; do
+                    echo -e "invalid DataType !!"
+                    echo -e "$colName ($colType) = \c"
+                    read data
+                done
+                fi
+                if [[ $colType == "varchar" ]]; then
+                while ! [[ $data =~ ^[a-zA-Z]*$ ]]; do
+                    echo -e "invalid DataType !!"
+                    echo -e "$colName ($colType) = \c"
+                    read data
+                done
+                fi
+                if [[ $colKey == "PK" ]]; then
+                while [[ true ]]; do
+                    if [[ $data =~ ^[`awk 'BEGIN{FS="|" ; ORS=" "}{if(NR != 1)print $(('$i'-1))}' $tableName`]$ ]]; then
+                    echo -e "invalid input for Primary Key !!"
+                     echo -e "$colName ($colType) = \c"
+                     read data
+                    else
+                    break;
+                    fi
+                done
+                fi
+                #Set row
+                if [[ $i == $colsNum ]]; then
+                row=$row$data$rSep
+                else
+                row=$row$data$sep
+                fi
+            done
+            echo -e $row"\c" >> $tableName
+            if [[ $? == 0 ]]
+            then
+                echo "Data Inserted Successfully"
+            else
+                echo "Error Inserting Data into Table $tableName"
+            fi
+            row=""
+             ;;
+        select-from-table ) 
+        ;;
         delete-from-table ) ;;
         exit ) exit ;;
         *) exit ;;
