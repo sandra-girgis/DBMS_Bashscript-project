@@ -1,34 +1,48 @@
 #!/bin/bash
+# if the db dir already exist don't throw an error
+# if it isn't exist
+# create it 
 mkdir DB 2>> ./.wornning.log
+# enter to the db dir
 cd DB
 echo "Welcome To our database :)"
 let flag2=0
+# first menu work in the db main dir
+# you can create / list / connect to / delete spacifice db
 select choice in "create-db" "list-db" "connect-db" "delete-db" "exit"
 do
 case $choice in
     create-db )
+        # take db name from user
         echo enter your database name
-        read namedb
+        read dbName
+        # db flag
         let flag=0
+        # list all existed dbs
+        # no need to check if it is empty because it won't enter
+        # the loop and will create the db
         for i in `ls`
         do
-            if [ $namedb = $i ]
+            # check if your db exist
+            if [ $dbName = $i ]
             then
-                echo $namedb is already exist
+                # it exists
+                echo $dbName is already exist
+                # make flag = 1
                 flag=1
-            fi
-            if [ $flag -eq 1 ]
-            then
                 break
             fi
         done
+        # if flag = 0 so it dosn't exist
+        # so you can create it
         if [ $flag -eq 0 ]
         then
-            mkdir $namedb
-            echo $namedb is created
+            mkdir $dbName
+            echo $dbName is created
         fi
         ;;
     list-db ) 
+
         if [ `ls | wc -l` -eq 0 ]
         then
             echo list is empty
@@ -42,14 +56,14 @@ case $choice in
             echo there is no data base so choise 1 to create your data base
         else
             echo ENTER YOUR NAME OF DATA BASE
-            read data
+            read dbName
             let flag=0
             for i in `ls`
             do
-                if [ $data = $i ]
+                if [ $dbName = $i ]
                 then
-                    cd $data
-                    echo you now in your $data
+                    cd $dbName
+                    echo you now in your $dbName
                     flag=1
                 fi
                 if [ $flag -eq 1 ]
@@ -61,7 +75,7 @@ case $choice in
             done
             if [ $flag -eq 0 ]
             then 
-                echo $data not exist so choise 1 to create your data base
+                echo $dbName not exist so choise 1 to create your data base
             fi
             if [ $flag2 -eq 1 ]
             then
@@ -76,14 +90,14 @@ case $choice in
             echo there is no data base so choise 1 to create your data base
         else
             echo ENTER YOUR NAME OF DATA BASE
-            read data
+            read dbName
             let flag=0
         for i in `ls`
         do
-            if [ $data = $i ]
+            if [ $dbName = $i ]
             then
-                rm -ir $data
-                echo your $data is deleted
+                rm -ir $dbName
+                echo your $dbName is deleted
                 flag=1
             fi
             if [ $flag -eq 1 ]
@@ -93,7 +107,7 @@ case $choice in
         done
             if [ $flag -eq 0 ]
             then 
-                echo $data not exist 
+                echo $dbName not exist 
             fi
         fi
         ;;
@@ -124,17 +138,24 @@ then
             done
             if [ $flag -eq 0 ]
             then
+                # enter the number of columns in the table
                 echo -e "Number of Columns: \c"
                 read colsNum
-                counter=1
+                # columns counter
+                count=1
+                # field seperator
                 sep="|"
+                # record seperator
                 rSep="\n"
                 pKey=""
+                # meta data string
                 metaData="Field"$sep"Type"$sep"key" 
-                while [ $counter -le $colsNum ]
-                do            
-                    echo -e "Name of Column No.$counter: \c"
+                while [ $count -le $colsNum ]
+                do
+                    # enter the column name
+                    echo -e "Name of Column No.$count: \c"
                     read colName
+                    # choice the column type
                     echo -e "Type of Column $colName: "
                     select var in "int" "varchar"
                     do
@@ -147,6 +168,7 @@ then
                             echo "Wrong Choice" ;;
                     esac
                     done
+                    # choice if it is a primary key or not
                     if [[ $pKey == "" ]]; then
                         echo -e "Make PrimaryKey ? "
                         select var in "yes" "no"
@@ -163,20 +185,26 @@ then
                         done
                         else
                         metaData+=$rSep$colName$sep$colType$sep""
-                        fi                    
-                    if [[ $counter == $colsNum ]]; then
+                        fi
+                    # columns names
+                    if [[ $count == $colsNum ]]; then
                     temp=$temp$colName
                     else
                     temp=$temp$colName$sep
                     fi
-                    ((counter++))
+                    ((count++))
                 done
+                # create meta data hidden file
                 touch .$tablename
+                # insert meta data string in meta data file
                 echo -e $metaData  >> .$tablename
+                # create table file
                 touch $tablename
+                # insert columns names in table file
                 echo -e $temp >> $tablename
                 if [[ $? == 0 ]]
                 then
+                    # the Table Created Successfully
                     echo "Table Created Successfully"
                 else
                     echo "Error Creating Table $tablename"
@@ -190,7 +218,7 @@ then
             else
                 ls
             fi
-        ;;
+            ;;
         drop-table )
             if [ `ls | wc -l` -eq 0 ]
             then
@@ -203,7 +231,9 @@ then
             do
                 if [ $data = $i ]
                 then
+                    # remove table data file
                     rm $data
+                    # remove table meta data file
                     rm .$data
                     echo your $data Table is deleted
                     flag=1
@@ -218,23 +248,32 @@ then
                     echo $data not exist 
                 fi
             fi
-        ;;
+            ;;
         insert-in-table ) 
             echo -e "Table Name: \c"
             read tableName
+            # check if your table exist
             if ! [[ -f $tableName ]]; then
+                # it dosn't exist
                 echo "Table $tableName isn't existed ,choose another Table"
+                break
             fi
+            # it exists so
+            # get the number of columns
             colsNum=`awk 'END{print NR}' .$tableName`
             sep="|"
             rSep="\n"
-            for (( i = 2; i <= $colsNum; i++ )); do
+            for (( i = 2; i <= $colsNum; i++ ));
+            do
+                # trace on each record in metadata hidden file
                 colName=$(awk 'BEGIN{FS="|"}{ if(NR=='$i') print $1}' .$tableName)
                 colType=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $2}' .$tableName)
                 colKey=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $3}' .$tableName)
+                # get record values from user
                 echo -e "$colName ($colType) = \c"
                 read data
                 # Validate datatype
+                # is it an integer ?
                 if [[ $colType == "int" ]]; then
                 while ! [[ $data =~ ^[0-9]*$ ]]; do
                     echo -e "invalid DataType !!"
@@ -242,6 +281,7 @@ then
                     read data
                 done
                 fi
+                # is it a varchar ?
                 if [[ $colType == "varchar" ]]; then
                 while ! [[ $data =~ ^[a-zA-Z]*$ ]]; do
                     echo -e "invalid DataType !!"
@@ -249,36 +289,86 @@ then
                     read data
                 done
                 fi
+                # is it a primary key ?
                 if [[ $colKey == "PK" ]]; then
                 while [[ true ]]; do
+                    # if it is a primary key so
+                    # check if it is available
                     if [[ $data =~ ^[`awk 'BEGIN{FS="|" ; ORS=" "}{if(NR != 1)print $(('$i'-1))}' $tableName`]$ ]]; then
                     echo -e "invalid input for Primary Key !!"
-                     echo -e "$colName ($colType) = \c"
-                     read data
+                    echo -e "$colName ($colType) = \c"
+                    read data
                     else
                     break;
                     fi
                 done
                 fi
-                #Set row
+                #Set value in record
                 if [[ $i == $colsNum ]]; then
                 row=$row$data$rSep
                 else
                 row=$row$data$sep
                 fi
             done
+            # if all done set full record in the table
             echo -e $row"\c" >> $tableName
+            # check if Data Inserted Successfully
             if [[ $? == 0 ]]
             then
                 echo "Data Inserted Successfully"
             else
                 echo "Error Inserting Data into Table $tableName"
             fi
+            # reset the row variable value
             row=""
              ;;
         select-from-table ) 
-        ;;
-        delete-from-table ) ;;
+            ;;
+        delete-from-table )
+            ###############
+            # need to update if the value isn't the pk
+            # it won't delete but it will echo delete successfully
+            ###############
+            echo -e "Enter Table Name: \c"
+            read tableName
+            # check if your table exist
+            if ! [[ -f $tableName ]]; then
+                # it dosn't exist
+                echo "Table $tableName isn't existed ,choose another Table"
+                break
+            fi
+            # it exists so
+            # which column do you want to search with
+            echo -e "Enter Condition Column name: \c"
+            read field
+            # check if your column exist
+            fid=$(awk 'BEGIN{FS="|"}{if(NR==1){for(i=1;i<=NF;i++){if($i=="'$field'") print i}}}' $tableName)
+            if [[ $fid == "" ]]
+            then
+                # it dosn't exist
+                echo "Not Found"
+            else
+                # it exists so
+                # which Value do you want to search with
+                echo -e "Enter Condition Value: \c"
+                read value
+                # check if your Value exist
+                result=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print $'$fid'}' $tableName 2>>./.wornning.log)
+                if [[ $result == "" ]]
+                then
+                # it dosn't exist
+                echo "Value Not Found"
+                else
+                # it exists so
+                # get the line number of the value to delete it
+                NR=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print NR}' $tableName 2>>./.wornning.log)
+                # edit the table and delete the record
+                sed -i ''$NR'd' $tableName 2>> ./.wornning.log
+                # The Row Deleted Successfully
+                echo "Row Deleted Successfully"
+                fi
+            fi
+            ;;
         exit ) exit ;;
         *) exit ;;
     esac
