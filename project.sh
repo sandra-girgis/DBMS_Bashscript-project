@@ -1,5 +1,5 @@
 #!/bin/bash
-# if the db dir already exist don't throw an error
+# if the db dir already exist don't show an error
 # if it isn't exist
 # create it 
 mkdir DB 2>> ./.wornning.log
@@ -29,7 +29,9 @@ case $choice in
                 # it exists
                 echo $dbName is already exist
                 # make flag = 1
+                # so the db is exist
                 flag=1
+                # so break the 'if' condition
                 break
             fi
         done
@@ -42,11 +44,15 @@ case $choice in
         fi
         ;;
     list-db ) 
-
+        # list db then count them
+        # if the list is empty
         if [ `ls | wc -l` -eq 0 ]
         then
+            # so list is empty
             echo list is empty
         else
+            # if the list isn't empty
+            # show the list
             ls
         fi
         ;;
@@ -55,11 +61,15 @@ case $choice in
         then
             echo there is no data base so choise 1 to create your data base
         else
+            # if the list isn't empty
+            # enter your db name
             echo ENTER YOUR NAME OF DATA BASE
             read dbName
             let flag=0
             for i in `ls`
             do
+                # if the db is exist
+                # so enter to your db dir
                 if [ $dbName = $i ]
                 then
                     cd $dbName
