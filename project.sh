@@ -76,21 +76,23 @@ case $choice in
                     echo you now in your $dbName
                     flag=1
                 fi
+                # if you entered  to your db
                 if [ $flag -eq 1 ]
                 then
                     flag2=1
+                    #then break from the loop
                     break
-                    # exit
                 fi
             done
+            # if data base is not exist
             if [ $flag -eq 0 ]
             then 
                 echo $dbName not exist so choise 1 to create your data base
             fi
             if [ $flag2 -eq 1 ]
             then
+             # exit from menu 1 and enter to menu 2 to create your table
                 break
-                #exit
             fi
         fi
         ;;
@@ -102,10 +104,12 @@ case $choice in
             echo ENTER YOUR NAME OF DATA BASE
             read dbName
             let flag=0
+            # i=items
         for i in `ls`
         do
             if [ $dbName = $i ]
             then
+            # if data base is exist remove it
                 rm -ir $dbName
                 echo your $dbName is deleted
                 flag=1
@@ -125,27 +129,37 @@ case $choice in
     *) exit ;;
 esac
 done
+# second menu work in your db dir (that you choise)
+# you can create / list / drop /  insert into/ select from / delete from  spacifice table
 if [ $flag2 -eq 1 ]
 then
     select choice in "create-table" "list-table" "drop-table" "insert-in-table" "select-from-table" "delete-from-table"
     do
     case $choice in
         create-table )
+            # take table name from user
             echo ENTER your table name 
             read tablename
+            # table flag
             let flag=0
+            # list all existed tables
+            # no need to check if it is empty because it won't enter
+            # the loop and will create the table
             for i in `ls`
             do
+                # check if your table exist
                 if [ $tablename = $i ]
                 then
+                    # it exists
                     echo $tablename is already exist
+                    # make flag = 1
+                    # so the table is exist
                     flag=1
-                fi
-                if [ $flag -eq 1 ]
-                then
-                    break
+                     # so break the 'if' condition
+                     break
                 fi
             done
+            # if table is not exist
             if [ $flag -eq 0 ]
             then
                 # enter the number of columns in the table
@@ -157,12 +171,14 @@ then
                 sep="|"
                 # record seperator
                 rSep="\n"
+                # primary key string
                 pKey=""
                 # meta data string
                 metaData="Field"$sep"Type"$sep"key" 
+                #while the counter is less than number of column  that you entered 
                 while [ $count -le $colsNum ]
                 do
-                    # enter the column name
+                    # enter the column name 
                     echo -e "Name of Column No.$count: \c"
                     read colName
                     # choice the column type
@@ -195,11 +211,12 @@ then
                         done
                         else
                         metaData+=$rSep$colName$sep$colType$sep""
-                        fi
+                   fi
                     # columns names
                     if [[ $count == $colsNum ]]; then
                     temp=$temp$colName
                     else
+                    # when count < colsNum 
                     temp=$temp$colName$sep
                     fi
                     ((count++))
@@ -236,6 +253,7 @@ then
             else
                 echo ENTER YOUR NAME OF Table
                 read data
+                #let flag =0 to check if the table is exist
                 let flag=0
             for i in `ls`
             do
@@ -246,13 +264,13 @@ then
                     # remove table meta data file
                     rm .$data
                     echo your $data Table is deleted
+                   #the table is exist so let flag=1
                     flag=1
-                fi
-                if [ $flag -eq 1 ]
-                then
                     break
+
                 fi
             done
+            # if flage=0 (table not exist)
                 if [ $flag -eq 0 ]
                 then 
                     echo $data not exist 
@@ -262,10 +280,11 @@ then
         insert-in-table ) 
             echo -e "Table Name: \c"
             read tableName
-            # check if your table exist
+            # check if your table  not exist by !-f
             if ! [[ -f $tableName ]]; then
                 # it dosn't exist
                 echo "Table $tableName isn't existed ,choose another Table"
+                # back to the menu 2
                 break
             fi
             # it exists so
@@ -333,6 +352,47 @@ then
             row=""
              ;;
         select-from-table ) 
+            select choice in "select-all" "select-specific-column" "exit" 
+            do
+            case $choice in
+                select-all )  
+                    echo -e "Enter Table Name: \c"
+                    read tName
+                    column -t-s '|' $tName 2>>./.error.log
+                    if [[ $? != 0 ]]
+                    then
+                        echo "Error Displaying Table $tName"
+                    fi
+                    ;;
+                select-specific-column )  
+                    echo -e "Enter Table Name: \c"
+                    read tableName
+                    if ! [[ -f $tableName ]]; then
+                        # it dosn't exist
+                        echo "Table $tableName isn't existed ,choose another Table"
+                        # back to the menu 2
+                        break
+                    fi
+                    echo -e "Enter Column Name: \c"
+                    read field
+                    # check if your column exist
+                    fid=$(awk 'BEGIN{FS="|"}{if(NR==1){for(i=1;i<=NF;i++){if($i=="'$field'") print i}}}' $tableName)
+                    if [[ $fid == "" ]]
+                    then
+                        # it dosn't exist
+                        echo "Not Found"
+                    else
+                            awk 'BEGIN{FS="|"}{print $'$fid'}' $tableName 
+                    fi
+                ;;
+                exit ) 
+                    exit
+                ;;
+                *) echo " Wrong Choice " 
+                   exit
+                ;;
+            esac
+            done
             ;;
         delete-from-table )
             ###############
@@ -358,24 +418,33 @@ then
                 # it dosn't exist
                 echo "Not Found"
             else
-                # it exists so
-                # which Value do you want to search with
-                echo -e "Enter Condition Value: \c"
-                read value
-                # check if your Value exist
-                result=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print $'$fid'}' $tableName 2>>./.wornning.log)
-                if [[ $result == "" ]]
+            ((x=$fid+1))
+                test=$(awk 'BEGIN{FS="|"}{if(NR=='$x'){if($3=="PK") print 0}}' .$tableName)
+                if [[ $test != "0" ]]
                 then
-                # it dosn't exist
-                echo "Value Not Found"
+                    # it dosn't exist
+                    echo " you shoud enter your primarykey column name "
+                    exit
                 else
-                # it exists so
-                # get the line number of the value to delete it
-                NR=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print NR}' $tableName 2>>./.wornning.log)
-                # edit the table and delete the record
-                sed -i ''$NR'd' $tableName 2>> ./.wornning.log
-                # The Row Deleted Successfully
-                echo "Row Deleted Successfully"
+                    # it exists so
+                    # which Value do you want to search with
+                    echo -e "Enter Condition Value: \c"
+                    read value
+                    # check if your Value exist
+                    result=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print $'$fid'}' $tableName 2>>./.wornning.log)
+                    if [[ $result == "" ]]
+                    then
+                    # it dosn't exist
+                    echo "Value Not Found"
+                    else
+                    # it exists so
+                    # get the line number of the value to delete it
+                    NR=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print NR}' $tableName 2>>./.wornning.log)
+                    # edit the table and delete the record
+                    sed -i ''$NR'd' $tableName 2>> ./.wornning.log
+                    # The Row Deleted Successfully
+                    echo "Row Deleted Successfully"
+                    fi
                 fi
             fi
             ;;
