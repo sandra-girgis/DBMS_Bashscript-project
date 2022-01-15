@@ -479,7 +479,7 @@ function selectTable() {
             ;;
         *)
             echo WRONG CHOICE !!
-            exit
+            selectTable
             ;;
         esac
     done
