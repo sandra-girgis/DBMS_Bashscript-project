@@ -2,7 +2,7 @@
 # if the db dir already exist don't show an error
 # if it isn't exist
 # create it
-mkdir DB 2>>./.wornning.log
+mkdir DB 2>> /dev/null
 # enter to the db dir
 cd DB
 echo "Welcome To our database :)"
@@ -98,7 +98,12 @@ function list1() {
                         # if data base is exist remove it
                         rm -ir $dbName
                         clear
-                        echo -e "your $dbName is deleted\n"
+                        if [ -f "$dbName" ]; then
+                            echo -e "\ndb didn't delete\n"
+                        else
+                            # The db Deleted Successfully
+                            echo -e "your $dbName is Deleted Successfully\n"
+                        fi
                         flag=1
                         break
                     fi
@@ -183,7 +188,7 @@ function list2() {
                 echo -e "Number of Columns: \c"
                 read colsNum
                 # check if the user enter a number or something else
-                while ! [[ $colsNum =~ ^[0-9]*$ ]]; do
+                while  [[ ! ( $colsNum =~ ^[0-9]*$ ) || $colsNum = "" ]]; do
                     echo -e "invalid Number !!"
                     echo -e "Number of Columns: \c"
                     read colsNum
@@ -202,7 +207,7 @@ function list2() {
                         echo -e "Enter Name of Your Primary Key Column : \c"
                         read colName
                         # column name shouldn't contain any ting except characters
-                        while ! [[ $colName =~ ^[a-zA-Z]*$ ]]; do
+                        while [[ ! ( $colName =~ ^[a-zA-Z]*$ ) || $colName = "" ]]; do
                             echo -e "invalid column name !!"
                             echo -e "Enter Name of Your Primary Key Column : \c"
                             read colName
@@ -211,7 +216,7 @@ function list2() {
                         # enter the column name
                         echo -e "Name of Column No.$count: \c"
                         read colName
-                        while ! [[ $colName =~ ^[a-zA-Z]*$ ]]; do
+                        while [[ ! ( $colName =~ ^[a-zA-Z]*$ ) || $colName = "" ]]; do
                             echo -e "invalid column name !!"
                             echo -e "Name of Column No.$count: \c"
                             read colName
@@ -288,7 +293,12 @@ function list2() {
                         # remove table meta data file
                         rm .$data
                         clear
-                        echo -e "your $data Table is deleted\n"
+                        if [ -f "$data" ]; then
+                            echo -e "\ntable didn't delete\n"
+                        else
+                            # The table Deleted Successfully
+                            echo -e "your $data is Deleted Successfully\n"
+                        fi
                         #the table is exist so let flag=1
                         flag=1
                         break
@@ -405,14 +415,14 @@ function list2() {
                     # it dosn't exist
                     clear
                     echo -e "Table $tableName isn't existed ,choose another Table\n"
-                    break
+                    list2
                 fi
                 # it exists so
                 # which Value do you want to search with
                 echo -e "Enter Condition Value: \c"
                 read value
                 # check if your Value exist
-                result=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print $1 }' $tableName 2>>./.wornning.log)
+                result=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print $1 }' $tableName 2>>/dev/null)
                 # echo $result
                 if [[ $result == "" ]]; then
                     # it dosn't exist
@@ -420,9 +430,9 @@ function list2() {
                 else
                     # it exists so
                     # get the line number of the value to delete it
-                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print NR}' $tableName 2>>./.wornning.log)
+                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print NR}' $tableName 2>>/dev/null)
                     # edit the table and delete the record
-                    sed -i ''$NR'd' $tableName 2>>./.wornning.log
+                    sed -i ''$NR'd' $tableName 2>>/dev/null
                     # clear
                     if [[ $? == 0 ]]; then
                         # The Row Deleted Successfully
@@ -470,7 +480,7 @@ function selectTable() {
                 fi
                 clear
                 # display each column in table
-                column -t -s '|' $tableName 2>>./.wornning.log
+                column -t -s '|' $tableName 2>>/dev/null
                 if [[ $? != 0 ]]; then
                     echo "Error Displaying Table $tableName"
                 fi
@@ -494,7 +504,7 @@ function selectTable() {
                 echo -e "Enter Condition Value: \c"
                 read value
                 # check if your Value exist
-                result=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print $1 }' $tableName 2>>./.wornning.log)
+                result=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print $1 }' $tableName 2>>/dev/null)
                 # echo $result
                 if [[ $result == "" ]]; then
                     # it dosn't exist
@@ -503,10 +513,10 @@ function selectTable() {
                 else
                     # it exists so
                     # get the line number of the value to delete it
-                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print NR}' $tableName 2>>./.wornning.log)
+                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print NR}' $tableName 2>>/dev/null)
                     clear
-                    echo $(awk 'BEGIN{FS="|";}{if ( NR == 1 ) print $0 }' $tableName 2>>./.wornning.log)
-                    echo $(awk 'BEGIN{FS="|";}{if ( NR == '$NR' ) print $0 }' $tableName 2>>./.wornning.log)
+                    echo $(awk 'BEGIN{FS="|";}{if ( NR == 1 ) print $0 }' $tableName 2>>/dev/null)
+                    echo $(awk 'BEGIN{FS="|";}{if ( NR == '$NR' ) print $0 }' $tableName 2>>/dev/null)
                     echo -e "\n"
                     if [[ $? != 0 ]]; then
                         echo -e "\nError Inserting Data into Table $tableName\n"
