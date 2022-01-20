@@ -6,6 +6,7 @@ mkdir DB 2>>./.wornning.log
 # enter to the db dir
 cd DB
 echo "Welcome To our database :)"
+# will be use to check for the list is empty or not
 let q=0
 # first menu work in the db main dir
 # you can create / list / connect to / delete spacifice db
@@ -14,9 +15,16 @@ function list1() {
     select choice in "create-db" "list-db" "connect-db" "delete-db" "exit"; do
         case $choice in
         create-db)
+            clear
             # take db name from user
-            echo enter your database name
+            echo -e "Enter your database name : \c"
             read dbName
+            # db name shouldn't start with numbers
+            while ! [[ $dbName =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; do
+                echo -e "invalid db name !!"
+                echo -e "Enter your database name : \c"
+                read dbName
+            done
             # db flag
             let flag=0
             # list all existed dbs
@@ -26,7 +34,8 @@ function list1() {
                 # check if your db exist
                 if [ $dbName = $i ]; then
                     # it exists
-                    echo $dbName is already exist
+                    clear
+                    echo -e "$dbName table is already exist\n"
                     # make flag = 1
                     # so the db is exist
                     flag=1
@@ -37,16 +46,20 @@ function list1() {
             # if flag = 0 so it dosn't exist
             # so you can create it
             if [ $flag -eq 0 ]; then
+                clear
                 mkdir $dbName
-                echo $dbName is created
+                echo -e "$dbName table is created\n"
             fi
+            list1
             ;;
         list-db)
+            clear
             showlist
             q=0
             list1
             ;;
         connect-db)
+            clear
             showlist
             if [ $q -eq 1 ]; then
                 # if the list isn't empty
@@ -57,19 +70,23 @@ function list1() {
                     # if the db is exist
                     # so enter to your db dir
                     if [ $dbName = $i ]; then
+                        clear
                         cd $dbName
-                        echo you now in your $dbName
+                        echo -e "you now in your $dbName\n"
                         list2
                     fi
                 done
                 # if data base is not exist
                 if [ $flag -eq 0 ]; then
-                    echo $dbName not exist so choise 1 to create your data base
+                    clear
+                    echo -e "$dbName not exist so choise 1 to create your data base\n"
                 fi
                 q=0
             fi
+            list1
             ;;
         delete-db)
+            clear
             showlist
             if [ $q -eq 1 ]; then
                 echo ENTER YOUR NAME OF DATA BASE
@@ -80,24 +97,26 @@ function list1() {
                     if [ $dbName = $i ]; then
                         # if data base is exist remove it
                         rm -ir $dbName
-                        echo your $dbName is deleted
+                        clear
+                        echo -e "your $dbName is deleted\n"
                         flag=1
-                    fi
-                    if [ $flag -eq 1 ]; then
                         break
                     fi
                 done
                 if [ $flag -eq 0 ]; then
-                    echo $dbName not exist
+                    clear
+                    echo -e "$dbName db not exist\n"
                 fi
                 q=0
             fi
             list1
             ;;
         exit)
+            clear
             exit
             ;;
         *)
+            clear
             echo WRONG CHOICE !!
             list1
             ;;
@@ -130,9 +149,16 @@ function list2() {
     select choice in "create-table" "list-table" "drop-table" "insert-in-table" "select-from-table" "delete-from-table" "back-to-db-menu" "exit"; do
         case $choice in
         create-table)
+            clear
             # take table name from user
-            echo ENTER your table name
+            echo -e "Enter your table name : \c"
             read tablename
+            # table name shouldn't start with numbers
+            while ! [[ $tablename =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; do
+                echo -e "invalid table name !!"
+                echo -e "Enter your database name : \c"
+                read tablename
+            done
             # table flag
             let flag=0
             # list all existed tables
@@ -142,7 +168,8 @@ function list2() {
                 # check if your table exist
                 if [ $tablename = $i ]; then
                     # it exists
-                    echo $tablename is already exist
+                    clear
+                    echo -e "$tablename table is already exist\n"
                     # make flag = 1
                     # so the table is exist
                     flag=1
@@ -167,15 +194,29 @@ function list2() {
                 sep="|"
                 # record seperator
                 rSep="\n"
-                # primary key string
-                pKey=""
                 # meta data string
                 metaData="Field"$sep"Type"$sep"key"
                 #while the counter is less than number of column  that you entered
                 while [ $count -le $colsNum ]; do
-                    # enter the column name
-                    echo -e "Name of Column No.$count: \c"
-                    read colName
+                    if [[ $count -eq 1 ]]; then
+                        echo -e "Enter Name of Your Primary Key Column : \c"
+                        read colName
+                        # column name shouldn't contain any ting except characters
+                        while ! [[ $colName =~ ^[a-zA-Z]*$ ]]; do
+                            echo -e "invalid column name !!"
+                            echo -e "Enter Name of Your Primary Key Column : \c"
+                            read colName
+                        done
+                    else
+                        # enter the column name
+                        echo -e "Name of Column No.$count: \c"
+                        read colName
+                        while ! [[ $colName =~ ^[a-zA-Z]*$ ]]; do
+                            echo -e "invalid column name !!"
+                            echo -e "Name of Column No.$count: \c"
+                            read colName
+                        done
+                    fi
                     # choice the column type
                     echo -e "Type of Column $colName: "
                     select var in "int" "varchar"; do
@@ -194,24 +235,8 @@ function list2() {
                         esac
                     done
                     # choice if it is a primary key or not
-                    if [[ $pKey == "" ]]; then
-                        echo -e "Make it as a PrimaryKey ? "
-                        select var in "yes" "no"; do
-                            case $var in
-                            yes)
-                                pKey="PK"
-                                metaData+=$rSep$colName$sep$colType$sep$pKey
-                                break
-                                ;;
-                            no)
-                                metaData+=$rSep$colName$sep$colType$sep""
-                                break
-                                ;;
-                            *)
-                                echo WRONG CHOICE !!
-                                ;;
-                            esac
-                        done
+                    if [[ $count -eq 1 ]]; then
+                        metaData+=$rSep$colName$sep$colType$sep"PK"
                     else
                         metaData+=$rSep$colName$sep$colType$sep""
                     fi
@@ -232,21 +257,24 @@ function list2() {
                 touch $tablename
                 # insert columns names in table file
                 echo -e $temp >>$tablename
+                clear
                 if [[ $? == 0 ]]; then
                     # the Table Created Successfully
-                    echo "Table Created Successfully"
+                    echo -e "Table Created Successfully\n"
                 else
-                    echo "Error Creating Table $tablename"
+                    echo -e "Error Creating Table $tablename\n"
                 fi
             fi
             list2
             ;;
         list-table)
+            clear
             showlist
             q=0
             list2
             ;;
         drop-table)
+            clear
             showlist
             if [ $q -eq 1 ]; then
                 echo ENTER YOUR NAME OF Table
@@ -259,7 +287,8 @@ function list2() {
                         rm $data
                         # remove table meta data file
                         rm .$data
-                        echo your $data Table is deleted
+                        clear
+                        echo -e "your $data Table is deleted\n"
                         #the table is exist so let flag=1
                         flag=1
                         break
@@ -267,12 +296,15 @@ function list2() {
                 done
                 # if flage=0 (table not exist)
                 if [ $flag -eq 0 ]; then
-                    echo $data not exist
+                    clear
+                    echo -e "$data table not exist\n"
                 fi
                 q=0
             fi
+            list2
             ;;
         insert-in-table)
+            clear
             showlist
             if [ $q -eq 1 ]; then
                 echo -e "Table Name: \c"
@@ -280,7 +312,8 @@ function list2() {
                 # check if your table  not exist by !-f
                 if ! [[ -f $tableName ]]; then
                     # it dosn't exist
-                    echo "Table $tableName isn't existed ,choose another Table"
+                    clear
+                    echo -e "Table $tableName isn't existed ,choose another Table\n"
                     # back to the menu 2
                     break
                 fi
@@ -294,7 +327,7 @@ function list2() {
                     # trace on each record in metadata hidden file
                     colName=$(awk 'BEGIN{FS="|"}{ if(NR=='$i') print $1}' .$tableName)
                     colType=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $2}' .$tableName)
-                    colKey=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $3}' .$tableName)
+                    # colKey=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $3}' .$tableName)
                     # get record values from user
                     echo -e "$colName ($colType) = \c"
                     read data
@@ -316,16 +349,24 @@ function list2() {
                         done
                     fi
                     # is it a primary key ?
-                    if [[ $colKey == "PK" ]]; then
+                    # colKey == "PK"
+                    if [[ $i -eq 2 ]]; then
                         while [[ true ]]; do
                             # if it is a primary key so
                             # check if it is available
-                            if [[ $data =~ ^[$(awk 'BEGIN{FS="|" ; ORS=" "}{if(NR != 1)print $(('$i'-1))}' $tableName)]$ ]]; then
-                                echo -e "invalid input for Primary Key !!"
+                            if [[ $data == "" ]];
+                            then
+                                echo -e "Primary Key can't be empty !!"
                                 echo -e "$colName ($colType) = \c"
                                 read data
                             else
-                                break
+                                if [ "$data" = "`awk -F "|" '{ print $1 }' $tableName | grep "^$data$"`" ]; then
+                                    echo -e "invalid input for Primary Key !!"
+                                    echo -e "$colName ($colType) = \c"
+                                    read data
+                                else
+                                    break
+                                fi
                             fi
                         done
                     fi
@@ -339,6 +380,7 @@ function list2() {
                 # if all done set full record in the table
                 echo -e $row"\c" >>$tableName
                 # check if Data Inserted Successfully
+                clear
                 if [[ $? == 0 ]]; then
                     echo -e "\nData Inserted Successfully\n"
                 else
@@ -349,9 +391,11 @@ function list2() {
             list2
             ;;
         select-from-table)
+            clear
             selectTable
             ;;
         delete-from-table)
+            clear
             showlist
             if [ $q -eq 1 ]; then
                 echo -e "Enter Table Name: \c"
@@ -359,57 +403,49 @@ function list2() {
                 # check if your table exist
                 if ! [[ -f $tableName ]]; then
                     # it dosn't exist
-                    echo "Table $tableName isn't existed ,choose another Table"
+                    clear
+                    echo -e "Table $tableName isn't existed ,choose another Table\n"
                     break
                 fi
                 # it exists so
-                # which column do you want to search with
-                echo -e "Enter Condition Column name: \c"
-                read field
-                # check if your column exist
-                fid=$(awk 'BEGIN{FS="|"}{if(NR==1){for(i=1;i<=NF;i++){if($i=="'$field'") print i}}}' $tableName)
-                if [[ $fid == "" ]]; then
+                # which Value do you want to search with
+                echo -e "Enter Condition Value: \c"
+                read value
+                # check if your Value exist
+                result=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print $1 }' $tableName 2>>./.wornning.log)
+                # echo $result
+                if [[ $result == "" ]]; then
                     # it dosn't exist
-                    echo "Not Found"
+                    echo "Value Not Found"
                 else
-                    ((x = $fid + 1))
-                    test=$(awk 'BEGIN{FS="|"}{if(NR=='$x'){if($3=="PK") print 0}}' .$tableName)
-                    if [[ $test != "0" ]]; then
-                        # it dosn't exist
-                        echo " you shoud enter your primarykey column name "
-                        exit
+                    # it exists so
+                    # get the line number of the value to delete it
+                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print NR}' $tableName 2>>./.wornning.log)
+                    # edit the table and delete the record
+                    sed -i ''$NR'd' $tableName 2>>./.wornning.log
+                    # clear
+                    if [[ $? == 0 ]]; then
+                        # The Row Deleted Successfully
+                        echo -e "\nRow Deleted Successfully\n"
                     else
-                        # it exists so
-                        # which Value do you want to search with
-                        echo -e "Enter Condition Value: \c"
-                        read value
-                        # check if your Value exist
-                        result=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print $'$fid'}' $tableName 2>>./.wornning.log)
-                        if [[ $result == "" ]]; then
-                            # it dosn't exist
-                            echo "Value Not Found"
-                        else
-                            # it exists so
-                            # get the line number of the value to delete it
-                            NR=$(awk 'BEGIN{FS="|"}{if ($'$fid'=="'$value'") print NR}' $tableName 2>>./.wornning.log)
-                            # edit the table and delete the record
-                            sed -i ''$NR'd' $tableName 2>>./.wornning.log
-                            # The Row Deleted Successfully
-                            echo "Row Deleted Successfully"
-                        fi
+                        echo -e "\nRow didn't delete\n"
                     fi
                 fi
                 q=0
             fi
+            list2
             ;;
         back-to-db-menu)
+            clear
             cd ..
             list1
             ;;
         exit)
+            clear
             exit
             ;;
         *)
+            clear
             echo WRONG CHOICE !!
             list2
             ;;
@@ -418,7 +454,7 @@ function list2() {
 }
 function selectTable() {
     echo CHOOSE FROM SELECT MENU
-    select choice in "select-all" "select-specific-column" "back-to-db-menu" "back-to-table-menu" "exit"; do
+    select choice in "select-all" "select-specific-record" "back-to-db-menu" "back-to-table-menu" "exit"; do
         case $choice in
         select-all)
             showlist
@@ -427,57 +463,74 @@ function selectTable() {
                 read tableName
                 if ! [[ -f $tableName ]]; then
                     # it dosn't exist
-                    echo "Table $tableName isn't existed"
+                    clear
+                    echo -e "Table $tableName isn't existed\n"
                     # back to the menu 2
                     selectTable
                 fi
+                clear
+                # display each column in table
                 column -t -s '|' $tableName 2>>./.wornning.log
                 if [[ $? != 0 ]]; then
                     echo "Error Displaying Table $tableName"
-                    echo "You may choiced an empty table"
                 fi
+                echo -e "\n"
                 q=0
             fi
             selectTable
             ;;
-        select-specific-column)
+        select-specific-record)
             showlist
             if [ $q -eq 1 ]; then
                 echo -e "Enter Table Name: \c"
                 read tableName
                 if ! [[ -f $tableName ]]; then
                     # it dosn't exist
-                    echo "Table $tableName isn't existed"
+                    clear
+                    echo -e "Table $tableName isn't existed\n"
                     # back to the menu 2
                     selectTable
                 fi
-                echo -e "Enter Column Name: \c"
-                read field
-                # check if your column exist
-                fid=$(awk 'BEGIN{FS="|"}{if(NR==1){for(i=1;i<=NF;i++){if($i=="'$field'") print i}}}' $tableName)
-                if [[ $fid == "" ]]; then
+                echo -e "Enter Condition Value: \c"
+                read value
+                # check if your Value exist
+                result=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print $1 }' $tableName 2>>./.wornning.log)
+                # echo $result
+                if [[ $result == "" ]]; then
                     # it dosn't exist
-                    echo "Not Found"
+                    clear
+                    echo -e "Value Not Found\n"
                 else
-                    echo -e "\n#################"
-                    awk 'BEGIN{FS="|"}{print $'$fid'}' $tableName
-                    echo -e "#################\n"
+                    # it exists so
+                    # get the line number of the value to delete it
+                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print NR}' $tableName 2>>./.wornning.log)
+                    clear
+                    echo $(awk 'BEGIN{FS="|";}{if ( NR == 1 ) print $0 }' $tableName 2>>./.wornning.log)
+                    echo $(awk 'BEGIN{FS="|";}{if ( NR == '$NR' ) print $0 }' $tableName 2>>./.wornning.log)
+                    echo -e "\n"
+                    if [[ $? != 0 ]]; then
+                        echo -e "\nError Inserting Data into Table $tableName\n"
+                    fi
                 fi
                 q=0
             fi
             selectTable
             ;;
         back-to-db-menu)
+            clear
             cd ..
             list1
             ;;
         back-to-table-menu)
+            clear
             list2
             ;;
         exit)
+            clear
             exit
             ;;
         *)
+            clear
             echo WRONG CHOICE !!
             selectTable
             ;;
