@@ -527,15 +527,15 @@ function selectTable() {
                     echo -e "Value Not Found\n"
                 else
                     # it exists so
-                    # get the line number of the value to delete it
+                    # get the line number of the value to select it
                     NR=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print NR}' $tableName 2>>/dev/null)
                     clear
                     echo $(awk 'BEGIN{FS="|";}{if ( NR == 1 ) print $0 }' $tableName 2>>/dev/null)
                     echo $(awk 'BEGIN{FS="|";}{if ( NR == '$NR' ) print $0 }' $tableName 2>>/dev/null)
-                    echo -e "\n"
                     if [[ $? != 0 ]]; then
-                        echo -e "\nError Inserting Data into Table $tableName\n"
+                        echo -e "\nError selecting Data from Table $tableName\n"
                     fi
+                    echo -e "\n"
                 fi
                 q=0
             fi
