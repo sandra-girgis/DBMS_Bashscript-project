@@ -47,8 +47,8 @@ test cases file
 
 ### Samah Gaber
 [Github](https://github.com/samahgabermohamed)
-[FB](https://www.facebook.com/profile.php?id=100017604692865)
+[Linked in](https://www.linkedin.com/in/samah-gaber-62099b166)
 
 ### Sandra Girgis
 [Github](https://github.com/sandra-girgis)
-[FB](https://www.facebook.com/sandra.girgis.54)
+[Linked in](https://www.linkedin.com/in/sandra-girgis)
