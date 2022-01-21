@@ -5,6 +5,7 @@
 mkdir DB 2>> /dev/null
 # enter to the db dir
 cd DB
+clear
 echo "Welcome To our database :)"
 # will be use to check for the list is empty or not
 let q=0
@@ -161,7 +162,7 @@ function list2() {
             # table name shouldn't start with numbers
             while ! [[ $tablename =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; do
                 echo -e "invalid table name !!"
-                echo -e "Enter your database name : \c"
+                echo -e "Enter your table name : \c"
                 read tablename
             done
             # table flag
@@ -325,7 +326,7 @@ function list2() {
                     clear
                     echo -e "Table $tableName isn't existed ,choose another Table\n"
                     # back to the menu 2
-                    break
+                    list2
                 fi
                 # it exists so
                 # get the number of columns
@@ -341,44 +342,55 @@ function list2() {
                     # get record values from user
                     echo -e "$colName ($colType) = \c"
                     read data
-                    # Validate datatype
-                    # is it an integer ?
-                    if [[ $colType == "int" ]]; then
-                        while ! [[ $data =~ ^[0-9]*$ ]]; do
-                            echo -e "invalid DataType !!"
-                            echo -e "$colName ($colType) = \c"
-                            read data
-                        done
-                    fi
-                    # is it a varchar ?
-                    if [[ $colType == "varchar" ]]; then
-                        while ! [[ $data =~ ^[a-zA-Z]*$ ]]; do
-                            echo -e "invalid DataType !!"
-                            echo -e "$colName ($colType) = \c"
-                            read data
-                        done
-                    fi
                     # is it a primary key ?
                     # colKey == "PK"
                     if [[ $i -eq 2 ]]; then
                         while [[ true ]]; do
                             # if it is a primary key so
                             # check if it is available
-                            if [[ $data == "" ]];
-                            then
-                                echo -e "Primary Key can't be empty !!"
+                            if [[ $colType == "int" ]]; then
+                                while [[ !( $data =~ ^[0-9]*$ ) && $data != "" ]]; do
+                                    echo -e "Primary Key can't be empty !!"
+                                    echo -e "invalid DataType !!"
+                                    echo -e "$colName ($colType) = \c"
+                                    read data
+                                done
+                            fi
+                            if [[ $colType == "varchar" ]]; then
+                                while [[ !( $data =~ ^[a-zA-Z]*$ ) && $data != "" ]]; do
+                                    echo -e "Primary Key can't be empty !!"
+                                    echo -e "invalid DataType !!"
+                                    echo -e "$colName ($colType) = \c"
+                                    read data
+                                done
+                            fi
+                            if [ "$data" = "`awk -F "|" '{ print $1 }' $tableName | grep "^$data$"`" ]; then
+                                echo -e "invalid input for Primary Key !!"
                                 echo -e "$colName ($colType) = \c"
                                 read data
                             else
-                                if [ "$data" = "`awk -F "|" '{ print $1 }' $tableName | grep "^$data$"`" ]; then
-                                    echo -e "invalid input for Primary Key !!"
-                                    echo -e "$colName ($colType) = \c"
-                                    read data
-                                else
-                                    break
-                                fi
+                                break
                             fi
                         done
+                    fi
+                    # Validate datatype
+                    # is it an integer ?
+                    if [[ $i -ne 2 ]]; then
+                        if [[ $colType == "int" ]]; then
+                            while ! [[ $data =~ ^[0-9]*$ ]]; do
+                                echo -e "invalid DataType !!"
+                                echo -e "$colName ($colType) = \c"
+                                read data
+                            done
+                        fi
+                        # is it a varchar ?
+                        if [[ $colType == "varchar" ]]; then
+                            while ! [[ $data =~ ^[a-zA-Z]*$ ]]; do
+                                echo -e "invalid DataType !!"
+                                echo -e "$colName ($colType) = \c"
+                                read data
+                            done
+                        fi
                     fi
                     #Set value in record
                     if [[ $i == $colsNum ]]; then
@@ -422,7 +434,7 @@ function list2() {
                 echo -e "Enter Condition Value: \c"
                 read value
                 # check if your Value exist
-                result=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print $1 }' $tableName 2>>/dev/null)
+                result=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print $1 }' $tableName 2>>/dev/null)
                 # echo $result
                 if [[ $result == "" ]]; then
                     # it dosn't exist
@@ -430,7 +442,7 @@ function list2() {
                 else
                     # it exists so
                     # get the line number of the value to delete it
-                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == '$value' ) print NR}' $tableName 2>>/dev/null)
+                    NR=$(awk 'BEGIN{FS="|"}{if ( $1 == "'$value'" ) print NR}' $tableName 2>>/dev/null)
                     # edit the table and delete the record
                     sed -i ''$NR'd' $tableName 2>>/dev/null
                     # clear
