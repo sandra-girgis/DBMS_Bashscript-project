@@ -98,7 +98,7 @@ function list1() {
                         # if data base is exist remove it
                         rm -ir $dbName
                         clear
-                        if [ -f "$dbName" ]; then
+                        if [ -d "$dbName" ]; then
                             echo -e "\ndb didn't delete\n"
                         else
                             # The db Deleted Successfully
