@@ -271,6 +271,8 @@ function list2() {
                     echo -e "Error Creating Table $tablename\n"
                 fi
             fi
+            metaData=""
+            temp=""
             list2
             ;;
         list-table)
@@ -410,6 +412,7 @@ function list2() {
                 fi
                 q=0
             fi
+            row=""
             list2
             ;;
         select-from-table)
