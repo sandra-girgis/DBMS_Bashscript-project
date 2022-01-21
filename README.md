@@ -1,108 +1,52 @@
-# Tests that i done in the project
-![img](./img/1.png)
+# DBMS_Bashscript-project
 
-if db name is empty , or start with number
+Bash Shell Script Database Management System (DBMS):
 
-![img](./img/2.png)
+The Project aim to develop DBMS, that will enable users to store and retrieve the data from Hard-disk.
 
-if db already exist
+The Project Features:
+The Application will be CLI Menu based app, that will provide to user this Menu items:
+Main Menu:
+- Create Database
+- List Databases
+- Connect To Databases
+- Drop Database
 
-![img](./img/3.png)
+Up on user Connect to Specific Database, there will be new Screen with this Menu:
+- Create Table 
+- List Tables
+- Drop Table
+- Insert into Table
+- Select From Table
+- Delete From Table
 
-db list and number of items in the list
+Hints:
+- The Database will store as Directory on Current Script File
+- Don't use Absolute Path in your scripts
+- The Tables Is Store In files, which can be CSV or JSON or XML File
+- You can divide the Table info to two tables: Meta-data and Raw Data in separate files or the same file
+- When Create Table, The Meta Data of Table will be: Table Name, Number of Columns, Name Of Columns
+- There is assumption that First Column is Primary Key, which used for Delete Rows.
+- The Select of Rows displayed in screen/terminal in Accepted/Good Format
 
-![img](./img/4.png)
+### [project.sh](project.sh)
 
-if you created a db that already exist
+the main project file
 
-![img](./img/5.png)
+### [Test.md](Test.md)
 
-if you deleted db that isn't exist
+test cases file
 
-![img](./img/6.png)
+### [snippet](/img/)
 
-if you didn't accept the delete question
+![img](./img/18.png)
 
-![img](./img/7.png)
+### Contact Us
 
-if it deleted successfully
+### Samah Gaber
+[Github](https://github.com/samahgabermohamed)
+[FB](https://www.facebook.com/profile.php?id=100017604692865)
 
-![img](./img/8.png)
-
-if you choised a wrong number that not in the menu
-
-![img](./img/9.png)
-
-try to connect but there are no tables
-
-![img](./img/10.png)
-
-if table name is empty , or start with number
-
-![img](./img/11.png)
-
-if number of columns is empty , or contain a characters
-
-![img](./img/12.png)
-
-if primary key columns is empty , or contain a numbers
-
-![img](./img/13.png)
-
-enter the first column that will be your pk and it's type
-
-![img](./img/14.png)
-
-table created successfully
-
-![img](./img/15.png)
-
-table list and number of items in the list
-
-![img](./img/16.png)
-
-if you deleted table that isn't exist
-
-![img](./img/17.png)
-
-if it deleted successfully
-
-![img](./img/19.png)
-
-in insert if pk is empty or wrong datatype 
-
-if any column is wrong datatype
-
-![img](./img/20.png)
-
-if it inserted successfully
-
-![img](./img/21.png)
-
-if you entered dublicated pk in int
-
-![img](./img/22.png)
-
-in insert if pk is empty or wrong datatype 
-
-if any column is wrong datatype
-
-![img](./img/23.png)
-
-if you entered dublicated pk in varchar
-
-![img](./img/24.png)
-
-if you selected wrong record
-
-![img](./img/25.png)
-
-if you selected valid record
-
-![img](./img/26.png)
-
-if you deleted wrong record
-
-![img](./img/27.png)
-
-if you deleted valid record
+### Sandra Girgis
+[Github](https://github.com/sandra-girgis)
+[FB](https://www.facebook.com/sandra.girgis.54)
