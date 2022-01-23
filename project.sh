@@ -255,6 +255,7 @@ function list2() {
                     fi
                     ((count++))
                 done
+                clear
                 # create meta data hidden file
                 touch .$tablename
                 # insert meta data string in meta data file
@@ -263,7 +264,6 @@ function list2() {
                 touch $tablename
                 # insert columns names in table file
                 echo -e $temp >>$tablename
-                clear
                 if [[ $? == 0 ]]; then
                     # the Table Created Successfully
                     echo -e "Table Created Successfully\n"
@@ -340,12 +340,10 @@ function list2() {
                     # trace on each record in metadata hidden file
                     colName=$(awk 'BEGIN{FS="|"}{ if(NR=='$i') print $1}' .$tableName)
                     colType=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $2}' .$tableName)
-                    # colKey=$(awk 'BEGIN{FS="|"}{if(NR=='$i') print $3}' .$tableName)
                     # get record values from user
                     echo -e "$colName ($colType) = \c"
                     read data
                     # is it a primary key ?
-                    # colKey == "PK"
                     if [[ $i -eq 2 ]]; then
                         while [[ true ]]; do
                             # if it is a primary key so
